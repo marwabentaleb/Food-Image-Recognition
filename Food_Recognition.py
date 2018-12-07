@@ -224,7 +224,7 @@ for batch in datagen.flow(x_train, batch_size=len(),
     if i > 20:
         break 
     print(batch)
-#batch_size=79
+batch_size=79
 #nb_batch = (int) (len(x_train)/batch_size)
 #x_train_shaped = x_train.reshape((nb_batch,)+ x_train[0].shape)
 #train_datagen = datagen.flow(x_train, y_train_cat, batch_size=batch_size, seed=11)
