@@ -215,15 +215,15 @@ datagen = ImageDataGenerator(
         horizontal_flip=True,
         fill_mode='nearest')
 
-## test
-#x = x_train[0].reshape((1,) + x_train[0].shape)
-#i = 0
-#for batch in datagen.flow(x_train, batch_size=len(),
-#                          save_to_dir='./preview', save_prefix='cat', save_format='jpg'):
-#    i += 1
-#    if i > 20:
-#        break 
-#    print(batch)
+# test datagen
+x = x_train[0].reshape((1,) + x_train[0].shape)
+i = 0
+for batch in datagen.flow(x_train, batch_size=len(),
+                          save_to_dir='./preview', save_prefix='cat', 				  save_format='jpg'):
+    i += 1
+    if i > 20:
+        break 
+    print(batch)
 #batch_size=79
 #nb_batch = (int) (len(x_train)/batch_size)
 #x_train_shaped = x_train.reshape((nb_batch,)+ x_train[0].shape)
