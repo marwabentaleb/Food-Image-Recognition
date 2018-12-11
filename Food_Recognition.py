@@ -113,8 +113,6 @@ if not os.path.isdir('./splitted_data') :
 else:
     print('Train/Test files already copied into separate folders.')
 
-
-
 #  Mixed data 
 def mix_data(X, Y):
     X_result = []
@@ -215,16 +213,70 @@ datagen = ImageDataGenerator(
         horizontal_flip=True,
         fill_mode='nearest')
 
-# test datagen
-x = x_train[0].reshape((1,) + x_train[0].shape)
+# Test the data augmentation 
+test = x_train[0]
+x = test.reshape((1,) + test.shape)
 i = 0
-for batch in datagen.flow(x_train, batch_size=len(),
-                          save_to_dir='./preview', save_prefix='cat', 				  save_format='jpg'):
+for batch in datagen.flow(x, batch_size=1,
+                          save_to_dir='./preview', save_prefix='img', save_format='jpg'):
     i += 1
     if i > 20:
         break 
-    print(batch)
-batch_size=79
-#nb_batch = (int) (len(x_train)/batch_size)
-#x_train_shaped = x_train.reshape((nb_batch,)+ x_train[0].shape)
-#train_datagen = datagen.flow(x_train, y_train_cat, batch_size=batch_size, seed=11)
+
+# Reshape the images    
+target_size = 299
+def reshape_data(X,target_size):
+    X_reshaped = np.zeros((X.shape[0],target_size,target_size,3))
+    for i in range(X.shape[0]):
+        X_reshaped[i] = imresize(X[i], (target_size, target_size)) 
+    return X_reshaped
+
+# Applying data generation for test data et training data 
+X_reshaped_train = reshape_data(x_train,target_size)
+train_datagen = datagen.flow(X_reshaped_train, y_train_cat, batch_size=20, seed=11)
+
+X_test_reshaped = reshape_data(x_test,target_size)
+test_datagen = datagen.flow(X_test_reshaped, y_test_cat, batch_size=20, seed=11)
+
+# Training
+from keras.models import Sequential
+from keras.layers import Conv2D
+from keras.layers import MaxPooling2D
+from keras.layers import Flatten
+from keras.layers import Dense, Dropout
+from keras.optimizers import SGD
+
+classifier = Sequential()
+classifier.add(Conv2D(32, (3, 3), input_shape = (target_size, target_size, 3), activation = 'relu'))
+classifier.add(MaxPooling2D(pool_size = (2, 2)))
+classifier.add(Conv2D(32, (3, 3), activation = 'relu'))
+classifier.add(MaxPooling2D(pool_size = (2, 2)))
+classifier.add(Flatten())
+classifier.add(Dense(units = 128, init='uniform', activation = 'relu'))
+classifier.add(Dropout(rate=0.2))
+classifier.add(Dense(units = 200, init='uniform', activation = 'relu'))
+classifier.add(Dense(units = nb_class, activation = 'softmax'))
+
+opt = SGD(lr=.01, momentum=.9)
+classifier.compile(optimizer = opt, loss = 'categorical_crossentropy', metrics = ['accuracy'])
+
+classifier.fit_generator(train_datagen,
+                         steps_per_epoch = x_train.shape[0],
+                         epochs = 10,
+                         validation_data = test_datagen,
+                         validation_steps = x_test.shape[0])
+
+# Model Evaluation
+
+
+
+
+
+
+
+
+
+
+
+
+
