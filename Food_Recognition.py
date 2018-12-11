@@ -268,15 +268,84 @@ classifier.fit_generator(train_datagen,
 
 # Model Evaluation
 
+y_pred = classifier.predict(X_test_reshaped)
+y_pred = y_pred[:,1]
+y_pred = y_pred.astype(int)
+y_test = y_test - 1
+
+cnf_matrix = confusion_matrix(y_test, y_pred)
+
+np.set_printoptions(precision=2)
+
+class_names = [id_to_class[i] for i in range(nb_class)]
 
 
+def plot_confusion_matrix(cm, classes,
+                          normalize,
+                          
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        title = "Normalized confusion matrix"
+        print("Normalized confusion matrix")
+    else:
+        title ='Confusion matrix, without normalization' 
+        print('Confusion matrix, without normalization')
 
+    print(cm)
 
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
 
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
 
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
+    
+# Plot confusion matrix
+plt.figure()
+fig = plt.gcf()
+fig.set_size_inches(5, 5)
+plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True, cmap=plt.cm.cool)
+plt.show()
 
+# Accuracy by class
+import collections
+corrects = collections.defaultdict(int)
+incorrects = collections.defaultdict(int)
+for (pred, actual) in zip(y_pred, y_test):
+    if pred == actual:
+        corrects[actual] += 1
+    else:
+        incorrects[actual] += 1
 
+class_accuracies = {}
+for ix in range(nb_class):
+    class_accuracies[ix] = corrects[ix]/(corrects[ix] + incorrects[ix])
+    
+plt.grid(True)
+plt.plot([0,1], list(class_accuracies.values()), 'o', color='black');
+plt.title('Accuracy by Class')
+plt.xlabel('label')
+plt.ylabel('accuracy')
 
+sorted_class_accuracies = sorted(class_accuracies.items(), key=lambda x: -x[1])
+[(id_to_class[c[0]], c[1]) for c in sorted_class_accuracies]
+for i in range(nb_class):
+    print ("The accuracy of the class ",sorted_class_accuracies[i][0]," is ", round(sorted_class_accuracies[i][1],3))
 
-
-
+# ..................................... END ..................................... #
