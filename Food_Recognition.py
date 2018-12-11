@@ -348,4 +348,4 @@ sorted_class_accuracies = sorted(class_accuracies.items(), key=lambda x: -x[1])
 for i in range(nb_class):
     print ("The accuracy of the class ",sorted_class_accuracies[i][0]," is ", round(sorted_class_accuracies[i][1],3))
 
-# ..................................... END ..................................... #
+# ..................................................... END ..................................................... #
